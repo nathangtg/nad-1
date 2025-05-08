@@ -13,6 +13,7 @@ Pasien CreatePasien(int length, int capacity) {
     pasien.capacity = capacity;
     return pasien;
 }
+
 Dokter CreateDokter(int length, int capacity) {
     Dokter dokter;
     dokter.buffer = (ElType *)malloc(capacity * sizeof(ElType));    
@@ -25,17 +26,20 @@ Dokter CreateDokter(int length, int capacity) {
     dokter.capacity = capacity;
     return dokter;
 }
+
 Manajer CreateManajer(ElType data) {
     Manajer manajer;
     manajer.data = data;    
     return manajer;
 }
+
 void FreePasien(Pasien *pasien) {
     free(pasien->buffer);
     pasien->buffer = NULL;
     pasien->length = 0;
     pasien->capacity = 0;
 }   
+
 void FreeDokter(Dokter *dokter) {
     free(dokter->buffer);
     dokter->buffer = NULL;
@@ -43,18 +47,56 @@ void FreeDokter(Dokter *dokter) {
     dokter->capacity = 0;
 }
 
-bool UsernameAvailable(ElType*N, ElType*M){
-    return (strcmp(N->username, M->username)==0);
+bool UsernameAvailable(ElType *N, ElType *M){
+    return (strcmp(N->username, M->username) == 0);
 }
 
-bool RightPassword(ElType*N, ElType*M){
-    return(strcmp(N->password,M->password)==0);
+bool RightPassword(ElType *N, ElType *M){
+    return (strcmp(N->password, M->password) == 0);
 }
 
-void IsRegistered(Dokter dokter, Pasien pasien, Manajer manajer, ElType *N) {
+int IsPasienRegistered(Pasien pasien, ElType *N) {
+    for (int i = 0; i < pasien.length; i++) {
+        if (UsernameAvailable(N, &pasien.buffer[i])) {
+            if (RightPassword(N, &pasien.buffer[i])) {
+                return 1; 
+            } else {
+                return 0; 
+            }
+        }
+    }
+    return -1;
+}
+
+int IsDokterRegistered(Dokter dokter, ElType *N) {
+    for (int i = 0; i < dokter.length; i++) {
+        if (UsernameAvailable(N, &dokter.buffer[i])) {
+            if (RightPassword(N, &dokter.buffer[i])) {
+                return 1; 
+            } else {
+                return 0; 
+            }
+        }
+    }
+    return -1;
+}
+
+int IsManajerRegistered(Manajer manajer, ElType *N) {
+    if (UsernameAvailable(N, &manajer.data)) {
+        if (RightPassword(N, &manajer.data)) {
+            return 1; 
+        } else {
+            return 0; 
+        }
+    }
+    return -1; 
+}
+
+void PrintAkun(Pasien pasien, Dokter dokter, Manajer manajer, ElType *N) {
     bool found = false;
     bool wrongpass = false;
-    char pilih[3] ;
+    
+    // Check if registered as patient
     for (int i = 0; i < pasien.length; i++) {
         if (UsernameAvailable(N, &pasien.buffer[i])) {
             if (RightPassword(N, &pasien.buffer[i])) {
@@ -67,6 +109,7 @@ void IsRegistered(Dokter dokter, Pasien pasien, Manajer manajer, ElType *N) {
         }
     }
 
+    // Check if registered as doctor
     for (int i = 0; i < dokter.length; i++) {
         if (UsernameAvailable(N, &dokter.buffer[i])) {
             if (RightPassword(N, &dokter.buffer[i])) {
@@ -79,8 +122,9 @@ void IsRegistered(Dokter dokter, Pasien pasien, Manajer manajer, ElType *N) {
         }
     }
 
-    if (UsernameAvailable(N, manajer.data)) {
-        if (RightPassword(N, *manajer.data)) {
+    // Check if registered as manager
+    if (UsernameAvailable(N, &manajer.data)) {
+        if (RightPassword(N, &manajer.data)) {
             printf("Halo manajer %s!!\n", manajer.data.username);
             found = true;
         } else {
@@ -94,9 +138,11 @@ void IsRegistered(Dokter dokter, Pasien pasien, Manajer manajer, ElType *N) {
     } else if (!found) {
         printf("Maaf, Akun tidak ditemukan\n");
         printf("Hal ini terjadi karena username dan password anda tidak terdaftar\n");
-        printf("Ingin register?(yes\no)\n");
-        scanf("%s", &pilih);   
-        if(pilih=="yes") Register(pasien,N);
+        printf("Ingin register? (yes/no)\n");
+        char pilih[4];
+        scanf("%s", pilih); 
+        if (strcmp(pilih, "yes") == 0) { 
+            pasien = Register(pasien, N);
+        }
     }
 }
-
