@@ -1,5 +1,5 @@
-#include "login.h"
-#include "register.h"
+#include "header/login.h"
+#include "header/register.h"
 
 Pasien CreatePasien(int length, int capacity) {
     Pasien pasien;
